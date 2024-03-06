@@ -133,10 +133,28 @@ const GetAllTask = async (req, res, next) => {
     next(new Error(error));
   }
 };
+const DeleteTask = async (req, res) => {
+  const { id } = req.params; // ObjectId of the task to update
+  try {
+    // Update the Task
+    const result = await Task.deleteOne({ _id: id });
+
+    // Check if the Task was found and updated
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    res.status(200).json({ message: "Task deleted successfully" });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 module.exports = {
   CreateTask,
   GetAllAnalytics,
   GetAllTask,
   EditTask,
   ChangeTaskType,
+  DeleteTask,
 };
