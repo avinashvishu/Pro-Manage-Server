@@ -150,6 +150,32 @@ const DeleteTask = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+const GetSharedTask = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const response = await Task.findOne(
+      { _id: id },
+      { _id: 0, createdBy: 0, createdAt: 0, updatedAt: 0, __v: 0 }
+    );
+    if (response) {
+      return res.status(200).json({ response });
+    } else {
+      return res.status(404).json({
+        error: "Task Deleted",
+        message:
+          "The task you are trying to access has been deleted by the user.",
+      });
+    }
+  } catch (error) {
+    res.status(404).json({
+      error,
+      message:
+        "The task you are trying to access has been deleted by the user.",
+    });
+  }
+};
+
 module.exports = {
   CreateTask,
   GetAllAnalytics,
@@ -157,4 +183,5 @@ module.exports = {
   EditTask,
   ChangeTaskType,
   DeleteTask,
+  GetSharedTask,
 };
