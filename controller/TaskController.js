@@ -1,3 +1,4 @@
+const e = require("cors");
 const Task = require("../model/TaskModel");
 const user = require("../model/User");
 
@@ -49,6 +50,7 @@ const EditTask = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
 const ChangeTaskType = async (req, res) => {
   const { id } = req.params; // ObjectId of the task to update
   const { taskType } = req.body; // Fields to update
@@ -70,6 +72,7 @@ const ChangeTaskType = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
 const GetAllAnalytics = async (req, res, next) => {
   try {
     const createdBy = await user.findById(req.body.userId);
@@ -121,9 +124,55 @@ const GetAllAnalytics = async (req, res, next) => {
     next(new Error(error));
   }
 };
+
 const GetAllTask = async (req, res, next) => {
   try {
     const createdBy = await user.findById(req.body.userId);
+    const { duration } = req.body;
+    const currentDate = new Date();
+    if (duration == "Today") {
+      // Calculate the start of the day
+      const startOfDay = new Date(currentDate);
+      startOfDay.setHours(0, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0
+
+      // Calculate the end of the day
+      const endOfDay = new Date(currentDate);
+      endOfDay.setHours(23, 59, 59, 999); // Set hours, minutes, seconds, and milliseconds to end of day
+
+      const response = await Task.find({
+        createdBy: createdBy._id,
+        createdAt: {
+          $gte: startOfDay.toISOString(), // Convert to ISOString format
+          $lt: endOfDay.toISOString(), // Convert to ISOString format
+        },
+      });
+      return res.status(200).json({ response, msg: "Success" });
+    } else if (duration == "This week") {
+      // Calculate the date 7 days ago
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      const response = await Task.find({
+        createdBy: createdBy._id,
+        createdAt: {
+          $gte: sevenDaysAgo.toISOString(), // Convert to ISOString format
+          $lt: currentDate.toISOString(), // Convert to ISOString format
+        },
+      });
+      return res.status(200).json({ response, msg: "Success" });
+    } else if (duration == "This Month") {
+      // Calculate the date 30 days ago
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const response = await Task.find({
+        createdBy: createdBy._id,
+        createdAt: {
+          $gte: thirtyDaysAgo.toISOString(), // Convert to ISOString format
+          $lt: currentDate.toISOString(), // Convert to ISOString format
+        },
+      });
+      return res.status(200).json({ response, msg: "Success" });
+    }
+
     const response = await Task.find({
       createdBy: createdBy._id,
     });
@@ -133,6 +182,7 @@ const GetAllTask = async (req, res, next) => {
     next(new Error(error));
   }
 };
+
 const DeleteTask = async (req, res) => {
   const { id } = req.params; // ObjectId of the task to update
   try {

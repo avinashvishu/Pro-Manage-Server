@@ -17,6 +17,6 @@ router.patch("/changeType/:id", jwt, ChangeTaskType);
 router.delete("/deleteTask/:id", jwt, DeleteTask);
 router.get("/sharedTask/:id", GetSharedTask);
 router.get("/task-analytics", jwt, GetAllAnalytics);
-router.get("/GetAllTask", jwt, GetAllTask);
+router.post("/GetAllTask", jwt, GetAllTask);
 
 module.exports = router;
